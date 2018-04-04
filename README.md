@@ -62,7 +62,7 @@ Though the frequency of words in resumes is known, the frequency is not currentl
 
 For each word in a resume:
 
-  if word in keywords.works
+  if word in keywords.words
     
 	 score = score + score_for_keyword
 

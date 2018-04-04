@@ -14,7 +14,9 @@ applications              1
 apps                      1
 architect                 2
 architecture              1
-asm                       1
+asm                       2
+automate                  1
+automated                 1
 automation                1
 awr                       1
 backtrack                 1
@@ -23,7 +25,9 @@ certified                 1
 cloud                     3
 cluster                   2
 clusters                  2
+complex                   2
 configured                1
+critical                  2
 crystal                   1
 dataguard                 2
 dcli                      2
@@ -35,6 +39,7 @@ emc                       1
 erwin                     1
 etl                       1
 exadata                   2
+failover                  2
 golden                    2
 goldengate                2
 grid                      1
@@ -66,6 +71,7 @@ recovery                  1
 replication               1
 responsible               1
 sap                       1
+science                   2
 security                  2
 shareplex                 2
 siebel                    1
@@ -74,14 +80,19 @@ software                  1
 sso                       1
 standby                   2
 streams                   1
+switchover                2
 sun                       1
 tomcat                    1
+troubleshoot              2
+troubleshooting           2
 tuning                    1
 unix                      1
 upgrade                   1
 veritas                   1
 vmware                    1
+warehouse                 1
 warehouses                1
+warehousing               1
 weblogic                  1
 wrote                     1
 xml                       2
