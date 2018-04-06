@@ -116,11 +116,14 @@ soa                       1
 solaris                   1
 sunos                     1
 software                  1
+ssl                       1
 sso                       1
 standby                   2
 streams                   1
 switchover                2
 sun                       1
+tde                       1
+tls                       1
 tomcat                    1
 troubleshoot              2
 troubleshooting           2
