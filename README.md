@@ -111,9 +111,6 @@ There are just a few steps:
   -rm -rf ./word/extract
 
 
-
-
-
 ## tokenize the resume
 
 All following steps can be executed on Linux if you like, just copy the *.txt files from the previous step.
@@ -158,9 +155,55 @@ Resume-3:  Score: 74
 Resume-4:  Score: 70
 ```
 
+## All in one
+
+Put all docx files in ./resumes/docx
+
+Then run scanner.sh.
+
+This will call the scripts to parse, tokenize and score the files.
+
+example:
+
+```text
+
+>  ./scanner.sh  | awk -F/ '{ print $1"/"$2"/"substr($3,1,2)"-Redacted.docx"}'
+Extracting text from resumes/docx/A--Redacted.docx
+Extracting text from resumes/docx/Ab-Redacted.docx
+Extracting text from resumes/docx/Ab-Redacted.docx
+Extracting text from resumes/docx/Al-Redacted.docx
+...
+
+Working on: resumes/text/A--Redacted.docx
+Working on: resumes/text/Ab-Redacted.docx
+Working on: resumes/text/Ab-Redacted.docx
+Working on: resumes/text/Al-Redacted.docx
+...
+
+### Scoring Resumes ###
+
+R--Redacted.log Score: 278
+Le-Redacted.log Score: 275
+Al-Redacted.log Score: 274
+Ve-Redacted.log Score: 269
+```
+
+
 # File extensions
 
-## .doc .docx
+## .doc 
+
+Legacy Format MS Word files.
+
+These cannot be used directly.
+
+I have used [MultiDoc Converter](http://www.multidoc-converter.com/en/download/index.html) to convert .doc files to .docx.
+
+This can be done manually with MS Word, but doing so is quite tedious.
+
+MultiDoc Converter is a Windows app that bulk processes the files.
+
+## .docx
 
 MS Word Files
 
@@ -195,16 +238,8 @@ Files containing words - such as the words we are interested in as found in a re
 
 # Files
 
-## Word2Text.cmd
-  Calls Word2Text per doc|docx file
-
-## Word2Text.pl
-  Converts doc|docx to text
-  
-  Must be run from Windows
-
 ## keywords.words
-  List of keyword of interest - includes a score per word (1 or 2)
+  List of keyword of interest - includes a score per word
 
 ## rscan.pl
   Resume scanner - tokenizes words and produces list of words reverse sorted by frequency
@@ -220,6 +255,10 @@ Files containing words - such as the words we are interested in as found in a re
  Gets a count of all words in all resumes in the current directory
 
  total-count.pl *.log  
+
+## scanner.sh
+
+  Run all operations
 
 ## score.pl
 

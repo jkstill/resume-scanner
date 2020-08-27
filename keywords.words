@@ -55,11 +55,11 @@ ec2                       1
 emc                       1
 erwin                     1
 etl                       1
-exadata                   2
+exadata                   100
 failover                  2
 gcp                       1
 golden                    2
-goldengate                2
+goldengate                100
 grid                      1
 guard                     2
 hadoop                    1

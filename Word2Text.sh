@@ -14,9 +14,9 @@ runCmd () {
 	eval $myCmd
 	local rc=$?
 	[[ $rc -eq 0 ]] || {
-		echo
-		echo Cmd Failed: $myCmd
-		echo Return Code: $rc
+		echo >&2
+		echo Cmd Failed: $myCmd >&2
+		echo Return Code: $rc >&2
 		return $rc
 	}
 
@@ -37,30 +37,30 @@ checkFileAccess () {
 cleanup () {
 
 	[[ -d $tmpDir ]] || {
-		echo
-		echo $tmpDir does not exist
-		echo
+		echo >&2
+		echo $tmpDir does not exist >&2
+		echo >&2
 		return 1
 	}
 
 	[[ -r $tmpDir ]] || {
-		echo
-		echo $tmpDir not readable
-		echo
+		echo >&2
+		echo $tmpDir not readable >&2
+		echo >&2
 		return 1
 	}
 
 	[[ -w $tmpDir ]] || {
-		echo
-		echo $tmpDir not writable
-		echo
+		echo >&2
+		echo $tmpDir not writable >&2
+		echo >&2
 		return 1
 	}
 
 	[[ -x $tmpDir ]] || {
-		echo
-		echo $tmpDir cannot be traversed
-		echo
+		echo >&2
+		echo $tmpDir cannot be traversed >&2
+		echo >&2
 		return 1
 	}
 
@@ -77,7 +77,7 @@ unzipDocx () {
 	local docxFile="$@"
 
 	# global var
-	unzip -d $tmpDir $docxFile
+	unzip -qq -d $tmpDir $docxFile
 
 	return $?
 }
@@ -88,18 +88,18 @@ declare xslFile=text-extract.xsl
 checkFileAccess "$xslFile"
 rc=$?
 [[ $rc -ne 0 ]] && {
-	echo
-	echo Cannot read "$xslFile"
-	echo
+	echo >&2
+	echo Cannot read "$xslFile" >&2
+	echo >&2
 	exit 1
 }
 
 checkFileAccess "$docxFile"
 rc=$?
 [[ $rc -ne 0 ]] && {
-	echo
-	echo Cannot read "$docxFile"
-	echo
+	echo >&2
+	echo Cannot read "$docxFile" >&2
+	echo >&2
 	exit 1
 }
 
@@ -108,9 +108,9 @@ extractText () {
 	# this file must exist
 	xsltproc $xslFile ${tmpDir}/word/document.xml
 	[[ $rc -ne 0 ]] && { 
-		echo
-		echo extractText failed while processing: ${tmpDir}/word/document.xml
-		echo
+		echo >&2
+		echo extractText failed while processing: ${tmpDir}/word/document.xml >&2
+		echo >&2
 		return 1
 	}
 
@@ -129,23 +129,24 @@ unzipDocx "$docxFile"
 
 # tokenize and print
 
-extractText | ./tokenize.pl
+#extractText | ./tokenize.pl
+extractText 
 
 rc=$?
 [[ $rc -ne 0 ]] && {
-	echo
-	echo failed while extracting text: $rc
-	echo
-	echo Temp Dir: $tmpDir
+	echo >&2
+	echo failed while extracting text: $rc >&2
+	echo >&2
+	echo Temp Dir: $tmpDir >&2
 	exit 1
 }
 
 cleanup;
 rc=$?
 [[ $rc -ne 0 ]] && {
-	echo
-	echo failed during cleanup
-	echo
+	echo >&2
+	echo failed during cleanup >&2
+	echo >&2
 	exit 1
 }
 
