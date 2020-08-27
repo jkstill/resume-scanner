@@ -12,26 +12,104 @@ In short:
 
 ## convert to text
 
-It is assumed the resume is in MS Word format.
-If in text, then skip this step.
+Previously this step required running a batch script on a Windows machine.
 
-Copy the scripts Word2Text.cmd and Word2Text.pl to a Windows machine that has Perl installed.
+The script used a Perl script that ran MS Word to extract the data via Win32::OLE.
 
-Edit the Word2Text.cmd for path and file name as needed.
+Today it occurred to me there is a mucn better solution.
 
-Then run Word2Text.cmd.
+All `.docx` files are really a zip file, full of XML documents.
 
-The output will be Resumes in text format.
+```text
+
+>  unzip -l M-Smith.docx
+Archive:  M-Smith.docx
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+     2015  1980-01-01 00:00   [Content_Types].xml
+      590  1980-01-01 00:00   _rels/.rels
+     1471  1980-01-01 00:00   word/_rels/document.xml.rels
+    40532  1980-01-01 00:00   word/document.xml
+      289  1980-01-01 00:00   word/_rels/header1.xml.rels
+      510  1980-01-01 00:00   word/_rels/footer1.xml.rels
+     3394  1980-01-01 00:00   word/footer1.xml
+     3724  1980-01-01 00:00   word/header1.xml
+     1535  1980-01-01 00:00   word/endnotes.xml
+     1541  1980-01-01 00:00   word/footnotes.xml
+      154  1980-01-01 00:00   word/media/image1.png
+     6992  1980-01-01 00:00   word/theme/theme1.xml
+     2932  1980-01-01 00:00   word/settings.xml
+    33425  1980-01-01 00:00   word/styles.xml
+      446  1980-01-01 00:00   word/webSettings.xml
+     7374  1980-01-01 00:00   word/numbering.xml
+      726  1980-01-01 00:00   docProps/core.xml
+     2050  1980-01-01 00:00   word/fontTable.xml
+     1063  1980-01-01 00:00   docProps/app.xml
+---------                     -------
+   110763                     19 files
 
 ```
-X:\tmp\HR>Word2Text.cmd
 
-X:\tmp\HR>perl Word2Text.pl --dir "X:/tmp/HR" --file Resume-1.doc
-X:\tmp\HR>perl Word2Text.pl --dir "X:/tmp/HR" --file Resume-2.doc
-X:\tmp\HR>perl Word2Text.pl --dir "X:/tmp/HR" --file Resume-3.docx
-X:\tmp\HR>perl Word2Text.pl --dir "X:/tmp/HR" --file Resume-4.docx
+The files with the data of interesst are:
 
+- word/document.xml
+- word/footnotes.xml
+- word/endnotes.xml
+- word/footer1.xml
+- word/header1.xml
+
+By using the `xsltproc` tool, which is available on most Linux systems, the data can be easily extracted from `.docx` files.
+
+### text-extract.xsl
+
+The text-extract.xsl file is used to get just the text from the XML file.
+
+This XSL file was found here: [How to convert xml file to text file](https://www.unix.com/shell-programming-and-scripting/147483-how-convert-xml-file-text-file.html)
+
+```xml
+ <xsl:stylesheet version="1.0"
+   xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+
+   <xsl:output method="text"/>
+
+   <xsl:template match="catalog">
+      <xsl:call-template name="header" />
+      <xsl:apply-templates select="book" />
+   </xsl:template>
+
+   <xsl:template name="header">
+      <xsl:for-each select="//book[1]/child::*" >
+         <xsl:value-of select="name()" />
+         <xsl:if test="following-sibling::*">|</xsl:if>
+      </xsl:for-each>
+      <xsl:text>
+</xsl:text>
+   </xsl:template>
+
+   <xsl:template match="book">
+      <xsl:for-each select="child::*" >
+         <xsl:value-of select="." />
+         <xsl:if test="following-sibling::*">|</xsl:if>
+      </xsl:for-each>
+      <xsl:text>
+</xsl:text>
+   </xsl:template>
+
+</xsl:stylesheet>
 ```
+
+### Extracting the Text
+
+There are just a few steps:
+
+- unzip the word file to a tmp directory
+  - mkdir -p ./word/extract
+  - unzip -d ./word/extract my-file.docx
+- parse the text from the XML to a file
+  - xsltproc text-extract.xsl ./word/extract/word/document.xml >> my-file.txt
+- remove the tmp directory
+  -rm -rf ./word/extract
+
 
 ## tokenize the resume
 
@@ -77,9 +155,55 @@ Resume-3:  Score: 74
 Resume-4:  Score: 70
 ```
 
+## All in one
+
+Put all docx files in ./resumes/docx
+
+Then run scanner.sh.
+
+This will call the scripts to parse, tokenize and score the files.
+
+example:
+
+```text
+
+>  ./scanner.sh  | awk -F/ '{ print $1"/"$2"/"substr($3,1,2)"-Redacted.docx"}'
+Extracting text from resumes/docx/A--Redacted.docx
+Extracting text from resumes/docx/Ab-Redacted.docx
+Extracting text from resumes/docx/Ab-Redacted.docx
+Extracting text from resumes/docx/Al-Redacted.docx
+...
+
+Working on: resumes/text/A--Redacted.docx
+Working on: resumes/text/Ab-Redacted.docx
+Working on: resumes/text/Ab-Redacted.docx
+Working on: resumes/text/Al-Redacted.docx
+...
+
+### Scoring Resumes ###
+
+R--Redacted.log Score: 278
+Le-Redacted.log Score: 275
+Al-Redacted.log Score: 274
+Ve-Redacted.log Score: 269
+```
+
+
 # File extensions
 
-## .doc .docx
+## .doc 
+
+Legacy Format MS Word files.
+
+These cannot be used directly.
+
+I have used [MultiDoc Converter](http://www.multidoc-converter.com/en/download/index.html) to convert .doc files to .docx.
+
+This can be done manually with MS Word, but doing so is quite tedious.
+
+MultiDoc Converter is a Windows app that bulk processes the files.
+
+## .docx
 
 MS Word Files
 
@@ -114,16 +238,8 @@ Files containing words - such as the words we are interested in as found in a re
 
 # Files
 
-## Word2Text.cmd
-  Calls Word2Text per doc|docx file
-
-## Word2Text.pl
-  Converts doc|docx to text
-  
-  Must be run from Windows
-
 ## keywords.words
-  List of keyword of interest - includes a score per word (1 or 2)
+  List of keyword of interest - includes a score per word
 
 ## rscan.pl
   Resume scanner - tokenizes words and produces list of words reverse sorted by frequency
@@ -139,6 +255,10 @@ Files containing words - such as the words we are interested in as found in a re
  Gets a count of all words in all resumes in the current directory
 
  total-count.pl *.log  
+
+## scanner.sh
+
+  Run all operations
 
 ## score.pl
 

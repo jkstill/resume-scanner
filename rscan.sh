@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for resume in *.txt
+for resume in resumes/text/*.txt
 do
 	echo Working on: $resume
 	baseName=$(echo $resume | cut -d. -f1)
